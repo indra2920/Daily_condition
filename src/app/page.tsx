@@ -1,4 +1,5 @@
 "use client";
+// Force Vercel Rebuild
 
 import { Camera, Mail, Lock, User, ArrowRight } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
