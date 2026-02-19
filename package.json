@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node -e \"console.log('CWD:', process.cwd()); console.log('Files:', require('fs').readdirSync('.')); try { console.log('src:', require('fs').readdirSync('src')); } catch (e) { console.log('src missing'); }\" && next build",
     "start": "next start",
     "lint": "eslint"
   },
