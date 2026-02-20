@@ -4,10 +4,11 @@ import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { reportService, DailySubmission } from "@/services/reportService";
-import { LogOut, Calendar, MapPin, ChevronRight, CheckCircle, Clock, AlertTriangle } from "lucide-react";
+import { LogOut, Calendar, MapPin, ChevronRight, CheckCircle, Clock, AlertTriangle, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import UserMonitoring from "@/components/UserMonitoring";
 
 export default function ManagerDashboard() {
     const { user, logout } = useAuth();
@@ -240,6 +241,10 @@ export default function ManagerDashboard() {
                     </div>
                 )}
 
+                {/* Live Monitoring Section */}
+                <div className="bg-zinc-900 rounded-xl p-5 border border-zinc-800">
+                    <UserMonitoring />
+                </div>
             </main>
         </div>
     );

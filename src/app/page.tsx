@@ -4,11 +4,12 @@
 import { Camera, Mail, Lock, User, ArrowRight } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export default function LoginPage() {
-  const { loginWithGoogle, loginWithEmail, registerWithEmail, loading } = useAuth();
+  const { loginWithGoogle, loginWithEmail, registerWithEmail, loading, user } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,6 +17,13 @@ export default function LoginPage() {
   const [jobTitle, setJobTitle] = useState("Staff");
   const [formLoading, setFormLoading] = useState(false);
   const [branches, setBranches] = useState<any[]>([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push("/dashboard");
+    }
+  }, [user, loading, router]);
 
   useEffect(() => {
     const fetchBranches = async () => {

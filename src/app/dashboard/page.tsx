@@ -103,6 +103,7 @@ export default function DashboardPage() {
                     <div>
                         <h1 className="text-lg font-bold text-white">Branch Dashboard</h1>
                         <p className="text-xs text-zinc-400">Welcome, {user.email}</p>
+                        <p className="text-[10px] text-amber-500 font-mono">Role: {user.role} | Branch: {user.branchId}</p>
                     </div>
                     <button
                         onClick={() => logout()}

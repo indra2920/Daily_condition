@@ -4,11 +4,12 @@ import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot, query, addDoc, deleteDoc, doc, updateDoc, orderBy, limit } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { Trash2, CheckCircle, XCircle, Building, Users, Activity, FileText, ArrowRight, LogOut } from "lucide-react";
+import { Trash2, CheckCircle, XCircle, Building, Users, Activity, FileText, ArrowRight, LogOut, MapPin } from "lucide-react";
+import UserMonitoring from "@/components/UserMonitoring";
 
 export default function AdminPage() {
     const { user, loading, logout } = useAuth();
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'branches'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'branches' | 'monitoring'>('overview');
     const [users, setUsers] = useState<any[]>([]);
     const [branches, setBranches] = useState<any[]>([]);
     const [recentReports, setRecentReports] = useState<any[]>([]);
@@ -154,6 +155,12 @@ export default function AdminPage() {
                         className={`pb-2 px-4 flex items-center gap-2 whitespace-nowrap ${activeTab === 'branches' ? 'border-b-2 border-indigo-500 text-indigo-400' : 'text-zinc-400'}`}
                     >
                         <Building size={18} /> Branch Management
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('monitoring')}
+                        className={`pb-2 px-4 flex items-center gap-2 whitespace-nowrap ${activeTab === 'monitoring' ? 'border-b-2 border-indigo-500 text-indigo-400' : 'text-zinc-400'}`}
+                    >
+                        <MapPin size={18} /> Live Monitoring
                     </button>
                 </div>
 
@@ -379,6 +386,11 @@ export default function AdminPage() {
                             </ul>
                         </div>
                     </div>
+                )}
+
+                {/* Live Monitoring Tab */}
+                {activeTab === 'monitoring' && (
+                    <UserMonitoring />
                 )}
             </div>
         </div >

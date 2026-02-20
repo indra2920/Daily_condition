@@ -73,7 +73,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     branchId = data.branchId || "branch-001";
                 } else {
                     // Fallback for old/google users without profile doc
-                    role = firebaseUser.email?.includes("manager") ? "manager" : "user";
+                    // Fallback for old/google users without profile doc
+                    if (firebaseUser.email?.toLowerCase().includes("admin")) {
+                        role = "admin";
+                    } else if (firebaseUser.email?.toLowerCase().includes("manager")) {
+                        role = "manager";
+                    } else {
+                        role = "user";
+                    }
                     branchId = role === "manager" ? "HQ" : "branch-001";
                 }
 

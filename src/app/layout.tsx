@@ -18,6 +18,8 @@ export const metadata: Metadata = {
 };
 
 import { AuthProvider } from "@/context/AuthContext";
+import OfflineSyncManager from "@/components/OfflineSyncManager";
+import DeviceTracker from "@/components/DeviceTracker";
 
 export default function RootLayout({
   children,
@@ -25,11 +27,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
+          <OfflineSyncManager />
+          <DeviceTracker />
           {children}
         </AuthProvider>
       </body>
