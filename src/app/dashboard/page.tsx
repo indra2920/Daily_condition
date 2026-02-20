@@ -247,16 +247,36 @@ export default function DashboardPage() {
                                             {isDone ? `Submitted at ${new Date(report!.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : "Pending"}
                                         </p>
                                         {/* Photos Preview */}
-                                        {isDone && (report as any).photoUrls && (
-                                            <div className="flex gap-2 mt-2">
-                                                {(report as any).photoUrls.map((url: string, idx: number) => (
-                                                    <img
-                                                        key={idx}
-                                                        src={url}
-                                                        alt="Evidence"
-                                                        className="h-12 w-12 rounded-lg object-cover ring-1 ring-white/10"
-                                                    />
-                                                ))}
+                                        {isDone && (
+                                            <div className="flex gap-2 mt-2 flex-wrap">
+                                                {/* Prioritize 'photos' array with descriptions if available */}
+                                                {(report as any).photos ? (
+                                                    (report as any).photos.map((photo: any, idx: number) => (
+                                                        <div key={idx} className="group relative">
+                                                            <img
+                                                                src={photo.url}
+                                                                alt={photo.description || "Evidence"}
+                                                                title={photo.description}
+                                                                className="h-12 w-12 rounded-lg object-cover ring-1 ring-white/10"
+                                                            />
+                                                            {photo.description && (
+                                                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[150px] px-2 py-1 bg-black/80 text-[10px] text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                                                    {photo.description}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ))
+                                                ) : (report as any).photoUrls ? (
+                                                    /* Fallback for old reports */
+                                                    (report as any).photoUrls.map((url: string, idx: number) => (
+                                                        <img
+                                                            key={idx}
+                                                            src={url}
+                                                            alt="Evidence"
+                                                            className="h-12 w-12 rounded-lg object-cover ring-1 ring-white/10"
+                                                        />
+                                                    ))
+                                                ) : null}
                                             </div>
                                         )}
                                     </div>

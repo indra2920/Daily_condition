@@ -23,7 +23,7 @@ export default function NewReportPage() {
     const { user } = useAuth();
     const [step, setStep] = useState<1 | 2 | 3>(1); // 1: Category, 2: Camera, 3: Review
     const [selectedCategory, setSelectedCategory] = useState<string>("");
-    const [photos, setPhotos] = useState<string[]>([]);
+    const [photos, setPhotos] = useState<{ url: string; description: string }[]>([]);
     const [note, setNote] = useState("");
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -37,13 +37,17 @@ export default function NewReportPage() {
 
     // Step 2: Capture Photo
     const handleCapture = (imageData: string) => {
-        setPhotos(prev => [...prev, imageData]);
+        setPhotos(prev => [...prev, { url: imageData, description: "" }]);
         setIsCameraOpen(false);
         setStep(3); // Go to review after each photo
     };
 
     const removePhoto = (index: number) => {
         setPhotos(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const updatePhotoDescription = (index: number, desc: string) => {
+        setPhotos(prev => prev.map((p, i) => i === index ? { ...p, description: desc } : p));
     };
 
     // Step 3: Review & Submit
@@ -57,10 +61,11 @@ export default function NewReportPage() {
             const uploadPromises = photos.map(async (photo, index) => {
                 const timestamp = Date.now();
                 const imagePath = `reports/${user.branchId}/${user.uid}/${timestamp}_${index}.jpg`;
-                return await imageService.uploadImage(photo, imagePath);
+                const uploadedUrl = await imageService.uploadImage(photo.url, imagePath);
+                return { url: uploadedUrl, description: photo.description };
             });
 
-            const photoUrls = await Promise.all(uploadPromises);
+            const uploadedPhotos = await Promise.all(uploadPromises);
 
             // 2. Create Report in Firestore
             await reportService.createReport({
@@ -69,7 +74,8 @@ export default function NewReportPage() {
                 branchId: user.branchId,
                 category: selectedCategory,
                 categoryName: CATEGORIES.find(c => c.id === selectedCategory)?.name || "Unknown",
-                photoUrls: photoUrls, // Real Storage URLs array
+                photoUrls: uploadedPhotos.map(p => p.url), // For backward compatibility
+                photos: uploadedPhotos, // New structure with descriptions
                 note: note,
                 status: 'good'
             });
@@ -136,16 +142,27 @@ export default function NewReportPage() {
                         {/* Photo Gallery Grid */}
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {photos.map((p, i) => (
-                                <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-zinc-900 ring-1 ring-white/10 group">
-                                    <img src={p} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
-                                    <button
-                                        onClick={() => removePhoto(i)}
-                                        className="absolute top-2 right-2 bg-black/60 p-1.5 rounded-full text-white backdrop-blur-sm opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity"
-                                    >
-                                        <Trash2 className="h-4 w-4 text-red-400" />
-                                    </button>
-                                    <div className="absolute bottom-2 left-2 bg-black/60 px-2 py-0.5 rounded text-[10px] text-white backdrop-blur-sm">
-                                        #{i + 1}
+                                <div key={i} className="relative rounded-xl overflow-hidden bg-zinc-900 ring-1 ring-white/10 group">
+                                    <div className="aspect-square relative">
+                                        <img src={p.url} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
+                                        <button
+                                            onClick={() => removePhoto(i)}
+                                            className="absolute top-2 right-2 bg-black/60 p-1.5 rounded-full text-white backdrop-blur-sm opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <Trash2 className="h-4 w-4 text-red-400" />
+                                        </button>
+                                        <div className="absolute bottom-2 left-2 bg-black/60 px-2 py-0.5 rounded text-[10px] text-white backdrop-blur-sm">
+                                            #{i + 1}
+                                        </div>
+                                    </div>
+                                    <div className="p-2">
+                                        <input
+                                            type="text"
+                                            value={p.description}
+                                            onChange={(e) => updatePhotoDescription(i, e.target.value)}
+                                            placeholder="Add description..."
+                                            className="w-full bg-zinc-950/50 border border-zinc-800 rounded px-2 py-1 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                                        />
                                     </div>
                                 </div>
                             ))}

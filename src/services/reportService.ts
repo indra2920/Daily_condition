@@ -18,7 +18,8 @@ export interface Report {
     branchId: string;
     category: string;
     categoryName: string;
-    photoUrls: string[]; // Changed from single photoUrl
+    photoUrls: string[]; // Kept for backward compatibility
+    photos?: { url: string; description: string }[]; // New field
     note: string;
     timestamp: string;
     status: 'good' | 'bad' | 'needs_review';
@@ -60,8 +61,15 @@ export const reportService = {
     },
 
     createReport: async (report: Omit<Report, 'id' | 'timestamp'>): Promise<Report> => {
+        // Ensure backward compatibility by populating photoUrls from photos if not provided
+        let photoUrls = report.photoUrls;
+        if ((!photoUrls || photoUrls.length === 0) && report.photos) {
+            photoUrls = report.photos.map(p => p.url);
+        }
+
         const newReportData = {
             ...report,
+            photoUrls, // Ensure this is set
             timestamp: new Date().toISOString(),
             syncStatus: 'synced' as const
         };
